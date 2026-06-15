@@ -1,0 +1,27 @@
+[project]
+name = "osdu-python-schema"
+version = "0.1.0"
+description = "Typed Pydantic models for OSDU data payloads — opt-in companion to osdu-python-client"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Equinor" }]
+dependencies = [
+    "pydantic>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "datamodel-code-generator>=0.26",
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

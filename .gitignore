@@ -1,0 +1,12 @@
+# Generated Pydantic models — regenerable from the pinned snapshot, never hand-edited
+/src/osdu_schemas/workproductcomponent/
+/src/osdu_schemas/masterdata/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+dist/
+*.egg-info/
+.pytest_cache/
+.DS_Store
