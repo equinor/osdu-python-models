@@ -15,8 +15,8 @@ from pathlib import Path
 import pytest
 
 # Generated models (gitignored; run tools/generate.py first).
-pytest.importorskip("osdu_schemas.workproductcomponent.well_log.v1_4_0")
-from osdu_schemas.workproductcomponent.well_log.v1_4_0 import Data as WellLogV14  # noqa: E402
+pytest.importorskip("osdu_models.workproductcomponent.well_log.v1_4_0")
+from osdu_models.workproductcomponent.well_log.v1_4_0 import Data as WellLogV14  # noqa: E402
 
 # OSDU canonical example payloads live in the sibling data-definitions checkout.
 _EXAMPLES = Path(__file__).resolve().parents[2] / "data-definitions" / "Examples"

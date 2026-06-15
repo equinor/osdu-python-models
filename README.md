@@ -1,4 +1,4 @@
-# osdu-python-schema (PoC)
+# osdu-python-models (PoC)
 
 Typed **Pydantic v2** models for OSDU `data` payloads — an opt-in companion to
 [`osdu-python-client`](https://community.opengroup.org/osdu/platform/system/sdks/osdu-python-client),
@@ -19,7 +19,7 @@ runtime validation, and self-documenting payloads. This package provides exactly
 that, without touching the client.
 
 ```python
-from osdu_schemas.workproductcomponent.well_log.v1_5_0 import Data, Curve
+from osdu_models.workproductcomponent.well_log.v1_5_0 import Data, Curve
 
 # Typed authoring — autocomplete + validation
 data = Data(
@@ -55,10 +55,10 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
 ## Layout
 
 ```
-osdu-python-schema/
+osdu-python-models/
 ├── schemas/2026.05.22/        # pinned data-definitions snapshot (abstract + entities)
 ├── tools/generate.py          # bundles the `data` sub-schema, runs datamodel-codegen
-├── src/osdu_schemas/          # generated Pydantic models (gitignored, regenerable)
+├── src/osdu_models/            # generated Pydantic models (gitignored, regenerable)
 ├── tests/                     # round-trip + typed-access tests vs real OSDU examples
 └── samples/author_welllog.py  # end-to-end authoring demo (no network)
 ```

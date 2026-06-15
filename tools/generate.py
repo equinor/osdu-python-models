@@ -29,7 +29,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 SNAPSHOT = REPO / "schemas" / "2026.05.22"
-OUT_ROOT = REPO / "src" / "osdu_schemas"
+OUT_ROOT = REPO / "src" / "osdu_models"
 
 # (group dir, Type, version) -> generated module path under OUT_ROOT.
 # Scoped to WellLog for the PoC; two versions to show side-by-side typing.

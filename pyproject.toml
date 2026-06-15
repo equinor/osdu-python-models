@@ -1,5 +1,5 @@
 [project]
-name = "osdu-python-schema"
+name = "osdu-python-models"
 version = "0.1.0"
 description = "Typed Pydantic models for OSDU data payloads — opt-in companion to osdu-python-client"
 readme = "README.md"

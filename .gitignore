@@ -1,6 +1,6 @@
 # Generated Pydantic models — regenerable from the pinned snapshot, never hand-edited
-/src/osdu_schemas/workproductcomponent/
-/src/osdu_schemas/masterdata/
+/src/osdu_models/workproductcomponent/
+/src/osdu_models/masterdata/
 
 # Python
 __pycache__/

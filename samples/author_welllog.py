@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 
-from osdu_schemas.workproductcomponent.well_log.v1_5_0 import Data, Curve
+from osdu_models.workproductcomponent.well_log.v1_5_0 import Data, Curve
 
 # Typed authoring — IDE autocomplete + validation on every field.
 data = Data(
