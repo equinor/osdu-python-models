@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  release-please:
+    name: Release Please
+    if: github.event_name == 'push'
+    permissions:
+      contents: write # Required to update changelog file
+      pull-requests: write # Required to create release PRs
+    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@492516f19214a297c5f9ba6526bedb2a42c775d1 # v9.38.1
+
+  build-and-publish:
+    name: Build and publish
+    needs: release-please
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.release-please.outputs.releases_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to upload assets to the GitHub Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Install
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Generate models from schemas
+        # Generated models are gitignored; they must exist on disk so the build
+        # backend packages them into the wheel and sdist.
+        run: python tools/generate.py
+
+      - name: Build wheel and sdist
+        run: uv build --out-dir dist
+
+      - name: Upload assets to the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PATH_TAG_NAMES: ${{ needs.release-please.outputs.path_tag_names }}
+        run: |
+          # On push, release-please creates the GitHub Release and reports its
+          # tag for the root package ("."). On manual dispatch, fall back to the
+          # latest release. Attach the built distributions to that release.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            tag=$(gh release list --limit 1 --json tagName --jq '.[0].tagName')
+          else
+            tag=$(echo "$PATH_TAG_NAMES" | jq -r '."."')
+          fi
+          echo "Uploading dist/* to release $tag"
+          gh release upload "$tag" dist/* --clobber

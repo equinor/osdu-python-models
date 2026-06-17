@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    cooldown:
+      default-days: 7
+    # Prefix commit messages with "deps" to include dependency updates in patch releases
+    commit-message:
+      prefix: deps
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: sunday
+    cooldown:
+      default-days: 7
+    # Prefix commit messages with "deps" to include dependency updates in patch releases
+    commit-message:
+      prefix: deps
+    # Group into one PR — also keeps titles lowercase ("bump the pip group..."),
+    # which the commitlint subject-case rule requires (single bumps fail as "Bump X")
+    groups:
+      pip:
+        patterns: ["*"]

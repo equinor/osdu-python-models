@@ -1,0 +1,47 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Install
+        run: uv pip install --system -e ".[dev]"
+
+      - name: Fetch OSDU example payloads (best-effort)
+        continue-on-error: true
+        run: |
+          # Round-trip tests validate against canonical OSDU example payloads,
+          # expected at ../data-definitions/Examples (sibling checkout). Fetch
+          # just the Examples tree via a shallow sparse clone; if it fails, the
+          # example-based tests skip and only generation + import are checked.
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://community.opengroup.org/osdu/data/data-definitions.git \
+            ../data-definitions
+          git -C ../data-definitions sparse-checkout set Examples
+
+      - name: Generate models from schemas
+        run: python tools/generate.py
+
+      - name: Test
+        run: pytest -q -rs
