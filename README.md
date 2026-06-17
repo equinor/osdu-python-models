@@ -73,6 +73,12 @@ them. To build from source instead, see [Build & test](#build--test).
   this package owns `data`. The two compose via `model_dump()` / `model_validate()`.
 - **Side-by-side versions.** Each published version is its own module
   (`well_log/v1_4_0.py`, `v1_5_0.py`) — no "latest wins", explicit per-`kind`.
+- **Shared abstract modules.** OSDU `abstract/*` building blocks are generated
+  **once** under `osdu_models/abstract/<type>/v<ver>.py`; each entity model
+  imports them rather than inlining a private copy. This removes the ~96 % class
+  duplication of a per-entity bundling approach (43 models: 3,562 → 287 class
+  defs) and is what makes scaling past a handful of entities viable. Same idea as
+  the C# library's `ExternalReferenceCode` abstract sharing.
 - **String-only constraints stripped off non-string nodes.** A few OSDU schemas
   attach `pattern`/`format` to `array`/`integer` fields (e.g.
   `AbstractColumnBasedTable.IntegerColumn`); the generator drops them so Pydantic
@@ -92,8 +98,11 @@ them. To build from source instead, see [Build & test](#build--test).
 ```
 osdu-python-models/
 ├── schemas/2026.05.22/        # pinned data-definitions snapshot (abstract + entities)
-├── tools/generate.py          # bundles the `data` sub-schema, runs datamodel-codegen
+├── tools/generate.py          # restructures the `data` sub-schemas, runs datamodel-codegen
 ├── src/osdu_models/            # generated Pydantic models (gitignored, regenerable)
+│   ├── abstract/<type>/v<ver>.py          # shared abstract building blocks (generated once)
+│   ├── workproductcomponent/<type>/v<ver>.py
+│   └── masterdata/<type>/v<ver>.py        # → class Data, importing the shared abstracts
 ├── tests/test_roundtrip.py    # round-trip + typed-access tests vs real OSDU examples (all versions)
 └── samples/author_welllog.py  # end-to-end authoring demo (no network)
 ```
@@ -110,12 +119,16 @@ uv run python samples/author_welllog.py
 ## How it works
 
 OSDU record schemas put the payload under `properties.data` as an `allOf` of
-abstract building blocks (`../abstract/*.json`) plus inline fields. `tools/generate.py`:
+abstract building blocks (`../abstract/*.json`) plus inline fields. `tools/generate.py`
+uses `datamodel-codegen` **directory mode**, which turns cross-file `$ref`s into
+Python imports:
 
-1. lifts that `data` sub-schema to a standalone root schema,
-2. **bundles** every reachable file `$ref` into a self-contained `$defs` block
-   (whole-file refs, no fragments — so this is a clean inline),
-3. runs `datamodel-codegen` to emit one Pydantic v2 `Data` module per version.
+1. lifts each entity's `data` sub-schema (titled `Data`) and transitively
+   collects the shared `abstract/*` files it references,
+2. lays both out in a temp tree mirroring the output package structure, cleaning
+   schema quirks and rewriting `$ref`s to the new relative locations,
+3. runs `datamodel-codegen` **once** over that tree — emitting each abstract as a
+   shared module and each entity as a `Data` model that imports them.
 
 Generated code is gitignored — regenerable from the pinned snapshot, never
 hand-edited.

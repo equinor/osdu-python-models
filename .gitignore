@@ -1,4 +1,5 @@
 # Generated Pydantic models — regenerable from the pinned snapshot, never hand-edited
+/src/osdu_models/abstract/
 /src/osdu_models/workproductcomponent/
 /src/osdu_models/masterdata/
 
