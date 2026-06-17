@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/equinor/osdu-python-models/compare/v0.2.0...v0.3.0) (2026-06-17)
+
+
+### Features
+
+* expand scope to all work-product-component + master-data ([4abb4f1](https://github.com/equinor/osdu-python-models/commit/4abb4f160d48bd135ff8427506f209124cfe2be1))
+
+
+### Bug Fixes
+
+* resolve release tag via gh release list in publish job ([5303615](https://github.com/equinor/osdu-python-models/commit/5303615994d8dab91a387bfe6099914ac55363d2))
+
 ## [0.2.0](https://github.com/equinor/osdu-python-models/compare/v0.1.0...v0.2.0) (2026-06-17)
 
 
