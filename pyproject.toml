@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "datamodel-code-generator>=0.26",
     "pytest>=8.0",
+    "ruff>=0.6",
 ]
 
 [build-system]
@@ -25,3 +26,13 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+# Lint only hand-written sources. `src/osdu_models` is datamodel-codegen output
+# (gitignored, regenerable, never hand-edited), so it is intentionally excluded.
+target-version = "py310"
+include = ["tools/**/*.py", "tests/**/*.py", "samples/**/*.py"]
+extend-exclude = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

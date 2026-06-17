@@ -5,14 +5,15 @@ Typed **Pydantic v2** models for OSDU `data` payloads — an opt-in companion to
 mirroring the C# [`osdu-csharp-schemas`](https://github.com/equinor/osdu-csharp-schemas)
 library.
 
-> **Status: proof of concept.** Covers the full **Wellbore DDMS surface** — every
-> entity the WBDDMS `/ddms/v3/*` endpoints handle: 6 work-product-component
-> (`WellLog`, `WellboreTrajectory`, `WellboreIntervalSet`, `WellboreMarkerSet`,
-> `PPFGDataset`, `WellPressureTestRawMeasurement`) and 3 master-data (`Well`,
-> `Wellbore`, `WellLogAcquisition`) — all versions in the pinned snapshot
-> (**43 schema versions**). Mirrors the C# library's v0.2 scope. The generator is
-> data-driven: widening to more entities is a one-line `SCOPE` change in
-> `tools/generate.py`; versions are discovered from the snapshot automatically.
+> **Status: proof of concept.** Covers **all `work-product-component` and
+> `master-data` entity types** in the pinned OSDU snapshot — **166 entity types
+> across 491 schema versions** (93 work-product-component + 73 master-data), plus
+> **114 shared `abstract` modules** pulled in on demand. The generator is
+> data-driven: the scope is the `SCOPE_GROUPS` list in `tools/generate.py`, and
+> every type and version is discovered from the snapshot automatically, so a
+> snapshot bump or adding a group needs no other code change. `abstract` schemas
+> are not listed explicitly — only those reachable from a selected entity's
+> `$ref` closure are generated.
 
 ## Why
 
@@ -76,8 +77,8 @@ them. To build from source instead, see [Build & test](#build--test).
 - **Shared abstract modules.** OSDU `abstract/*` building blocks are generated
   **once** under `osdu_models/abstract/<type>/v<ver>.py`; each entity model
   imports them rather than inlining a private copy. This removes the ~96 % class
-  duplication of a per-entity bundling approach (43 models: 3,562 → 287 class
-  defs) and is what makes scaling past a handful of entities viable. Same idea as
+  duplication of a per-entity bundling approach (491 models: ~58,000 → 1,804 class
+  defs) and is what makes scaling to the full schema set viable. Same idea as
   the C# library's `ExternalReferenceCode` abstract sharing.
 - **String-only constraints stripped off non-string nodes.** A few OSDU schemas
   attach `pattern`/`format` to `array`/`integer` fields (e.g.
@@ -85,10 +86,13 @@ them. To build from source instead, see [Build & test](#build--test).
   v2 doesn't reject otherwise-valid payloads.
 - **`extra='allow'` everywhere.** Unknown / forward-compatible fields round-trip
   untouched (the Pydantic equivalent of C#'s `[JsonExtensionData]`).
-- **Temporal fields as `str`.** OSDU example payloads carry non-conformant
-  date-time variants that a strict `datetime` parser rejects or rewrites; emitting
-  them as `str` keeps round-trips byte-lossless. Same pragmatic choice the C#
-  library makes.
+- **String `format` dropped → plain `str`.** This library types `data` for
+  *lossless* round-tripping, not semantic validation. Honouring `format` would
+  make codegen emit validating/normalising types that defeat that or pull
+  optional deps: `date`/`date-time`/`time` (OSDU payloads carry non-conformant
+  variants a strict parser rejects), `email` (`EmailStr`, needs `email-validator`),
+  `uri` (`AnyUrl`, normalises the value). Keeping plain `str` preserves the input.
+  Same pragmatic choice the C# library makes.
 - **Pinned snapshot.** `schemas/2026.05.22/` is a frozen copy of the OSDU
   `data-definitions` `Generated/` schemas (shared with the C# library). Bumping it
   is an explicit, reviewable change.
@@ -112,6 +116,7 @@ osdu-python-models/
 ```sh
 uv venv && uv pip install -e ".[dev]"
 uv run python tools/generate.py     # generate models from the pinned snapshot
+uv run ruff check tools tests samples  # lint hand-written sources (not generated)
 uv run pytest                       # round-trip tests against OSDU example payloads
 uv run python samples/author_welllog.py
 ```
@@ -125,8 +130,13 @@ Python imports:
 
 1. lifts each entity's `data` sub-schema (titled `Data`) and transitively
    collects the shared `abstract/*` files it references,
-2. lays both out in a temp tree mirroring the output package structure, cleaning
-   schema quirks and rewriting `$ref`s to the new relative locations,
+2. lays both out in a temp tree mirroring the output package structure (every
+   file at the same depth, `<pkg>/<snake>/v<ver>.json`), cleaning schema quirks
+   and rewriting every `$ref` to a canonical root-relative path (`../../<pkg>/
+   <snake>/v<ver>.json`) so it resolves identically regardless of which file the
+   resolver treats as the base — sidestepping a `datamodel-codegen` quirk that
+   otherwise resolves a shared schema's nested `$ref`s against the *referencing*
+   entity's directory,
 3. runs `datamodel-codegen` **once** over that tree — emitting each abstract as a
    shared module and each entity as a `Data` model that imports them.
 

@@ -30,6 +30,9 @@ jobs:
           uv venv
           uv pip install -e ".[dev]"
 
+      - name: Lint (ruff)
+        run: uv run ruff check tools tests samples
+
       - name: Fetch OSDU example payloads (best-effort)
         continue-on-error: true
         run: |

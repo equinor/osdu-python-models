@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 
-from osdu_models.workproductcomponent.well_log.v1_5_0 import Data, Curve
+from osdu_models.workproductcomponent.well_log.v1_5_0 import Curve, Data
 
 # Typed authoring — IDE autocomplete + validation on every field.
 data = Data(
@@ -28,7 +28,8 @@ data = Data(
 #     from osdu_python_client.generated.wellbore_ddms.models.record import Record
 #     osdu.wellbore_ddms.create_or_update_records(
 #         body=[Record(kind="osdu:wks:work-product-component--WellLog:1.5.0",
-#                      acl=..., legal=..., data=data.model_dump(by_alias=True, exclude_none=True))]
+#                      acl=..., legal=...,
+#                      data=data.model_dump(by_alias=True, exclude_none=True))]
 #     )
 record = {
     "kind": "osdu:wks:work-product-component--WellLog:1.5.0",

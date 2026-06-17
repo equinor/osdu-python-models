@@ -1,8 +1,9 @@
 """Round-trip and typed-access tests for every generated `data` model.
 
-Validates the PoC premise across the full Wellbore DDMS surface: each real OSDU
-example payload deserializes into the matching typed Pydantic model, exposes
-typed fields, and serializes back byte-for-byte (modulo key ordering), with
+Validates the PoC premise across the generated surface: each real OSDU example
+payload deserializes into the matching typed Pydantic model, exposes typed
+fields, and serializes back to an equivalent JSON value (modulo key ordering and
+int/float spelling, e.g. ``200`` vs ``200.0`` for ``number`` fields), with
 unknown / forward fields preserved via ``extra='allow'``.
 
 The test matrix is derived from the same scope the generator uses
@@ -17,6 +18,7 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pydantic
 import pytest
 
 REPO = Path(__file__).resolve().parent.parent
@@ -73,6 +75,10 @@ def test_model_imports(target):
     group, type_name, version = target
     mod = pytest.importorskip(_module_name(group, type_name, version))
     assert hasattr(mod, "Data"), "generated module is missing the `Data` class"
+    if issubclass(mod.Data, pydantic.RootModel):
+        # `data` is a oneOf/anyOf of object shapes: `Data` is a RootModel union
+        # of the member models, each of which carries `extra='allow'`.
+        return
     assert mod.Data.model_config.get("extra") == "allow"
 
 
@@ -99,10 +105,13 @@ def test_roundtrip_is_lossless(target, _data_for):
     dumped = mod.Data.model_validate(raw).model_dump(
         mode="json", by_alias=True, exclude_none=True
     )
+    # JSON-semantic equality: Python `==` deep-compares dicts order-independently
+    # and treats numerically-equal int/float as equal (`200 == 200.0`), which is
+    # the correct round-trip contract for `number` fields typed as `float`.
     for key, value in raw.items():
-        assert json.dumps(value, sort_keys=True) == json.dumps(
-            dumped.get(key), sort_keys=True
-        ), f"round-trip changed {key!r} in {type_name} {version}"
+        assert value == dumped.get(key), (
+            f"round-trip changed {key!r} in {type_name} {version}"
+        )
 
 
 @pytest.mark.parametrize("target", _targets(), ids=_id)

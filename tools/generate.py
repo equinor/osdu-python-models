@@ -16,7 +16,8 @@ beyond a handful of entities. (Same idea as the C# library's
 
 Pipeline:
 
-1. discover targets (``SCOPE`` × versions present in the pinned snapshot),
+1. discover targets (every type in ``SCOPE_GROUPS`` × versions present in the
+   pinned snapshot),
 2. lift each entity's ``data`` sub-schema and transitively collect the shared
    ``abstract/*`` files it references,
 3. lay both out in a temp input tree that mirrors the desired package structure,
@@ -34,7 +35,6 @@ is gitignored and regenerable; never hand-edited.
 from __future__ import annotations
 
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -47,41 +47,35 @@ REPO = Path(__file__).resolve().parent.parent
 SNAPSHOT = REPO / "schemas" / "2026.05.22"
 OUT_ROOT = REPO / "src" / "osdu_models"
 
-# Entity scope: the Wellbore DDMS surface — every entity the WBDDMS
-# `/ddms/v3/*` endpoints handle (6 work-product-component + 3 master-data).
-# Mirrors the C# library's v0.2. Versions are discovered from the pinned
-# snapshot, so a snapshot bump picks up new versions with no code change.
-SCOPE = [
-    ("work-product-component", "WellLog"),
-    ("work-product-component", "WellboreTrajectory"),
-    ("work-product-component", "WellboreIntervalSet"),
-    ("work-product-component", "WellboreMarkerSet"),
-    ("work-product-component", "PPFGDataset"),
-    ("work-product-component", "WellPressureTestRawMeasurement"),
-    ("master-data", "Well"),
-    ("master-data", "Wellbore"),
-    ("master-data", "WellLogAcquisition"),
+# Entity scope: every entity type in these schema groups is generated (all
+# versions present in the pinned snapshot). `abstract` is not listed here — its
+# schemas are pulled in on demand as the transitive `$ref` closure of the
+# selected entities, so only abstracts that are actually used get generated.
+# A snapshot bump picks up new types and versions with no code change.
+SCOPE_GROUPS = [
+    "work-product-component",
+    "master-data",
 ]
 
 _PKG = {"work-product-component": "workproductcomponent", "master-data": "masterdata"}
 
 
 def _discover_targets() -> list[tuple[str, str, str]]:
-    """Expand SCOPE into (group, type, version) for every version in the snapshot.
+    """Discover every (group, type, version) in the snapshot for the scoped groups.
 
     Schema files are named ``<Type>.<version>.json`` (e.g. ``WellLog.1.5.0.json``).
-    Versions sort naturally so generated modules are emitted oldest-first.
+    Types and versions sort naturally so modules are emitted in a stable order.
     """
     targets: list[tuple[str, str, str]] = []
-    for group, type_name in SCOPE:
+    for group in SCOPE_GROUPS:
         group_dir = SNAPSHOT / group
-        versions = sorted(
-            p.name[len(type_name) + 1 : -len(".json")]
-            for p in group_dir.glob(f"{type_name}.*.json")
-        )
-        if not versions:
-            print(f"  warning: no schema files for {group}/{type_name}", file=sys.stderr)
-        for version in versions:
+        found: list[tuple[str, str]] = []
+        for p in sorted(group_dir.glob("*.json")):
+            type_name, version = _parse_name_version(p)
+            found.append((type_name, version))
+        if not found:
+            print(f"  warning: no schema files for group {group}", file=sys.stderr)
+        for type_name, version in sorted(found):
             targets.append((group, type_name, version))
     return targets
 
@@ -113,10 +107,17 @@ def _ver_module(version: str) -> str:
 def _clean_node(node: dict) -> dict:
     """Drop schema keywords that break codegen / strict validation.
 
-    - Temporal fields -> plain ``str``: OSDU example payloads carry non-conformant
-      date-time variants (e.g. ``...15.55Z``) that a strict parser rejects or
-      rewrites, breaking lossless round-trips. Same pragmatic choice the C#
-      library (and os-core-common) makes.
+    - ``format`` on string fields -> plain ``str``: this library types the ``data``
+      payload for *lossless* round-tripping (the Python analogue of the C#
+      library's ``[JsonExtensionData]``), not for semantic validation. Honouring
+      ``format`` would make codegen emit validating/normalising types that defeat
+      that goal or pull optional dependencies:
+        * ``date``/``date-time``/``time`` -> OSDU example payloads carry
+          non-conformant variants (e.g. ``...15.55Z``) a strict parser rejects;
+        * ``email`` -> ``EmailStr``, requiring the optional ``email-validator``;
+        * ``uri``/``uri-reference`` -> ``AnyUrl``, which normalises the value on
+          re-serialisation.
+      Keeping these as plain ``str`` preserves the exact input bytes.
     - String-only validation keywords (``pattern``/``minLength``/``maxLength``/
       ``format``) mis-applied to non-string nodes: some OSDU schemas attach
       ``pattern`` to a ``type: array``/``integer`` field (e.g.
@@ -125,12 +126,11 @@ def _clean_node(node: dict) -> dict:
       type 'list'").
     """
     node_type = node.get("type")
-    if node.get("format") in {"date-time", "date", "time"} and node_type == "string":
-        node = {k: v for k, v in node.items() if k != "format"}
-        node_type = node.get("type")
     is_string = node_type == "string" or (
         isinstance(node_type, list) and "string" in node_type
     )
+    if is_string and "format" in node:
+        node = {k: v for k, v in node.items() if k != "format"}
     if node_type is not None and not is_string:
         node = {
             k: v
@@ -193,6 +193,14 @@ def _rewrite(
     ``original_dir`` resolves refs as written in the snapshot; ``new_dir`` is the
     schema file's directory in the temp output tree; ``newmap`` maps each shared
     file's original absolute path to its absolute path in the temp tree.
+
+    Refs are emitted in a canonical *root-relative* form (``../../<pkg>/<snake>/
+    v<ver>.json``) rather than a prefix-shortened sibling path. Every file in the
+    temp tree lives at the same depth (``<pkg>/<snake>/v<ver>.json``), so this
+    form resolves identically no matter which directory the resolver treats as
+    the base. That sidesteps a ``datamodel-codegen`` quirk where a shared schema's
+    own nested ``$ref``s are resolved relative to the *referencing* entity's
+    directory instead of the shared schema's own directory.
     """
     if isinstance(node, list):
         return [_rewrite(x, original_dir, new_dir, newmap) for x in node]
@@ -203,8 +211,9 @@ def _rewrite(
     for k, v in node.items():
         if k == "$ref" and isinstance(v, str) and not v.startswith("#"):
             target = (original_dir / v).resolve()
-            rel = os.path.relpath(newmap[target], start=new_dir)
-            out[k] = Path(rel).as_posix()
+            root = new_dir.parent.parent
+            rel = newmap[target].relative_to(root).as_posix()
+            out[k] = f"../../{rel}"
         else:
             out[k] = _rewrite(v, original_dir, new_dir, newmap)
     return out
@@ -277,7 +286,10 @@ def main() -> int:
 
     shared = _abstract_closure(seeds)
 
-    with tempfile.TemporaryDirectory() as td_in, tempfile.TemporaryDirectory() as td_out:
+    with (
+        tempfile.TemporaryDirectory() as td_in,
+        tempfile.TemporaryDirectory() as td_out,
+    ):
         temp_root = Path(td_in)
         out_dir = Path(td_out)
         _build_input_tree(entities, shared, temp_root)
