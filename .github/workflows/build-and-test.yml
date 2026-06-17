@@ -26,7 +26,9 @@ jobs:
           python-version: "3.14"
 
       - name: Install
-        run: uv pip install --system -e ".[dev]"
+        run: |
+          uv venv
+          uv pip install -e ".[dev]"
 
       - name: Fetch OSDU example payloads (best-effort)
         continue-on-error: true
@@ -41,7 +43,7 @@ jobs:
           git -C ../data-definitions sparse-checkout set Examples
 
       - name: Generate models from schemas
-        run: python tools/generate.py
+        run: uv run python tools/generate.py
 
       - name: Test
-        run: pytest -q -rs
+        run: uv run pytest -q -rs
