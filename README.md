@@ -48,19 +48,19 @@ Released distributions are published as **GitHub Release assets** (this is a PoC
 not on PyPI). Install the wheel directly from a release:
 
 ```sh
-pip install https://github.com/equinor/osdu-python-models/releases/download/v0.2.0/osdu_python_models-0.2.0-py3-none-any.whl
+pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
 ```
 
 or with [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv pip install https://github.com/equinor/osdu-python-models/releases/download/v0.2.0/osdu_python_models-0.2.0-py3-none-any.whl
+uv pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
 ```
 
 To pin it in `requirements.txt` / `pyproject.toml`:
 
 ```
-osdu-python-models @ https://github.com/equinor/osdu-python-models/releases/download/v0.2.0/osdu_python_models-0.2.0-py3-none-any.whl
+osdu-python-models @ https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
 ```
 
 See the [releases page](https://github.com/equinor/osdu-python-models/releases)
