@@ -5,9 +5,14 @@ Typed **Pydantic v2** models for OSDU `data` payloads — an opt-in companion to
 mirroring the C# [`osdu-csharp-schemas`](https://github.com/equinor/osdu-csharp-schemas)
 library.
 
-> **Status: proof of concept.** Scoped to `WellLog` (v1.4.0 + v1.5.0) to prove the
-> approach end-to-end. The generator is data-driven — widening to every Wellbore
-> DDMS entity/version is a config change in `tools/generate.py`, not new code.
+> **Status: proof of concept.** Covers the full **Wellbore DDMS surface** — every
+> entity the WBDDMS `/ddms/v3/*` endpoints handle: 6 work-product-component
+> (`WellLog`, `WellboreTrajectory`, `WellboreIntervalSet`, `WellboreMarkerSet`,
+> `PPFGDataset`, `WellPressureTestRawMeasurement`) and 3 master-data (`Well`,
+> `Wellbore`, `WellLogAcquisition`) — all versions in the pinned snapshot
+> (**43 schema versions**). Mirrors the C# library's v0.2 scope. The generator is
+> data-driven: widening to more entities is a one-line `SCOPE` change in
+> `tools/generate.py`; versions are discovered from the snapshot automatically.
 
 ## Why
 
@@ -42,6 +47,10 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
   this package owns `data`. The two compose via `model_dump()` / `model_validate()`.
 - **Side-by-side versions.** Each published version is its own module
   (`well_log/v1_4_0.py`, `v1_5_0.py`) — no "latest wins", explicit per-`kind`.
+- **String-only constraints stripped off non-string nodes.** A few OSDU schemas
+  attach `pattern`/`format` to `array`/`integer` fields (e.g.
+  `AbstractColumnBasedTable.IntegerColumn`); the generator drops them so Pydantic
+  v2 doesn't reject otherwise-valid payloads.
 - **`extra='allow'` everywhere.** Unknown / forward-compatible fields round-trip
   untouched (the Pydantic equivalent of C#'s `[JsonExtensionData]`).
 - **Temporal fields as `str`.** OSDU example payloads carry non-conformant
@@ -59,7 +68,7 @@ osdu-python-models/
 ├── schemas/2026.05.22/        # pinned data-definitions snapshot (abstract + entities)
 ├── tools/generate.py          # bundles the `data` sub-schema, runs datamodel-codegen
 ├── src/osdu_models/            # generated Pydantic models (gitignored, regenerable)
-├── tests/                     # round-trip + typed-access tests vs real OSDU examples
+├── tests/test_roundtrip.py    # round-trip + typed-access tests vs real OSDU examples (all versions)
 └── samples/author_welllog.py  # end-to-end authoring demo (no network)
 ```
 

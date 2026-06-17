@@ -31,14 +31,43 @@ REPO = Path(__file__).resolve().parent.parent
 SNAPSHOT = REPO / "schemas" / "2026.05.22"
 OUT_ROOT = REPO / "src" / "osdu_models"
 
-# (group dir, Type, version) -> generated module path under OUT_ROOT.
-# Scoped to WellLog for the PoC; two versions to show side-by-side typing.
-TARGETS = [
-    ("work-product-component", "WellLog", "1.4.0"),
-    ("work-product-component", "WellLog", "1.5.0"),
+# Entity scope: the Wellbore DDMS surface — every entity the WBDDMS
+# `/ddms/v3/*` endpoints handle (6 work-product-component + 3 master-data).
+# Mirrors the C# library's v0.2. Versions are discovered from the pinned
+# snapshot, so a snapshot bump picks up new versions with no code change.
+SCOPE = [
+    ("work-product-component", "WellLog"),
+    ("work-product-component", "WellboreTrajectory"),
+    ("work-product-component", "WellboreIntervalSet"),
+    ("work-product-component", "WellboreMarkerSet"),
+    ("work-product-component", "PPFGDataset"),
+    ("work-product-component", "WellPressureTestRawMeasurement"),
+    ("master-data", "Well"),
+    ("master-data", "Wellbore"),
+    ("master-data", "WellLogAcquisition"),
 ]
 
 _PKG = {"work-product-component": "workproductcomponent", "master-data": "masterdata"}
+
+
+def _discover_targets() -> list[tuple[str, str, str]]:
+    """Expand SCOPE into (group, type, version) for every version in the snapshot.
+
+    Schema files are named ``<Type>.<version>.json`` (e.g. ``WellLog.1.5.0.json``).
+    Versions sort naturally so generated modules are emitted oldest-first.
+    """
+    targets: list[tuple[str, str, str]] = []
+    for group, type_name in SCOPE:
+        group_dir = SNAPSHOT / group
+        versions = sorted(
+            p.name[len(type_name) + 1 : -len(".json")]
+            for p in group_dir.glob(f"{type_name}.*.json")
+        )
+        if not versions:
+            print(f"  warning: no schema files for {group}/{type_name}", file=sys.stderr)
+        for version in versions:
+            targets.append((group, type_name, version))
+    return targets
 
 
 def _module_path(group: str, type_name: str, version: str) -> Path:
@@ -77,6 +106,23 @@ def _bundle(node: object, current_dir: Path, defs: dict[str, object]) -> object:
     # Same pragmatic choice the C# library (and os-core-common) makes.
     if node.get("format") in {"date-time", "date", "time"} and node.get("type") == "string":
         node = {k: v for k, v in node.items() if k != "format"}
+
+    # Drop string-only validation keywords mis-applied to non-string nodes.
+    # Some OSDU schemas attach `pattern`/`minLength`/`maxLength`/`format` to
+    # `array`/`integer` fields (e.g. AbstractColumnBasedTable's `IntegerColumn`
+    # carries `pattern: '^[0-9]+$'` on a `type: array`). These keywords are
+    # meaningless off a string and make Pydantic v2 raise at validation time
+    # ("Unable to apply constraint 'pattern' ... for schema of type 'list'").
+    node_type = node.get("type")
+    is_string = node_type == "string" or (
+        isinstance(node_type, list) and "string" in node_type
+    )
+    if node_type is not None and not is_string:
+        node = {
+            k: v
+            for k, v in node.items()
+            if k not in {"pattern", "minLength", "maxLength", "format"}
+        }
 
     ref = node.get("$ref")
     if isinstance(ref, str) and not ref.startswith("#"):
@@ -158,10 +204,11 @@ def main() -> int:
     if not SNAPSHOT.is_dir():
         print(f"Snapshot not found: {SNAPSHOT}", file=sys.stderr)
         return 1
-    for group, type_name, version in TARGETS:
+    targets = _discover_targets()
+    for group, type_name, version in targets:
         path = _generate_one(group, type_name, version)
         print(f"  generated {path.relative_to(REPO)}")
-    print(f"Done — {len(TARGETS)} model(s).")
+    print(f"Done — {len(targets)} model(s).")
     return 0
 
 
