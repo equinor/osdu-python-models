@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/equinor/osdu-python-models/compare/v0.3.0...v0.4.0) (2026-06-18)
+
+
+### Features
+
+* add dataset group to generated scope ([8946a13](https://github.com/equinor/osdu-python-models/commit/8946a130a6ad17edd0fdd0c3e815179b8bf329dd))
+
 ## [0.3.0](https://github.com/equinor/osdu-python-models/compare/v0.2.0...v0.3.0) (2026-06-17)
 
 
