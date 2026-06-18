@@ -2,6 +2,7 @@
 /src/osdu_models/abstract/
 /src/osdu_models/workproductcomponent/
 /src/osdu_models/masterdata/
+/src/osdu_models/dataset/
 
 # Python
 __pycache__/

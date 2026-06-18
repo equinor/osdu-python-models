@@ -55,9 +55,14 @@ OUT_ROOT = REPO / "src" / "osdu_models"
 SCOPE_GROUPS = [
     "work-product-component",
     "master-data",
+    "dataset",
 ]
 
-_PKG = {"work-product-component": "workproductcomponent", "master-data": "masterdata"}
+_PKG = {
+    "work-product-component": "workproductcomponent",
+    "master-data": "masterdata",
+    "dataset": "dataset",
+}
 
 
 def _discover_targets() -> list[tuple[str, str, str]]:
@@ -81,12 +86,23 @@ def _discover_targets() -> list[tuple[str, str, str]]:
 
 
 def _snake(name: str) -> str:
-    out: list[str] = []
-    for i, ch in enumerate(name):
-        if ch.isupper() and i and not name[i - 1].isupper():
-            out.append("_")
-        out.append(ch.lower())
-    return "".join(out)
+    """snake_case an OSDU type name into a valid Python module/package name.
+
+    Dotted compound names (e.g. dataset's ``File.Generic``,
+    ``FileCollection.SEGY``, ``File.Image.JPEG``) are split on ``.`` and each
+    segment is snake-cased, then joined with ``_`` — so ``File.Generic`` ->
+    ``file_generic``. Names without dots are unaffected (``WellLog`` ->
+    ``well_log``).
+    """
+    parts: list[str] = []
+    for segment in name.split("."):
+        out: list[str] = []
+        for i, ch in enumerate(segment):
+            if ch.isupper() and i and not segment[i - 1].isupper():
+                out.append("_")
+            out.append(ch.lower())
+        parts.append("".join(out))
+    return "_".join(p for p in parts if p)
 
 
 _NAME_VER = re.compile(r"^(?P<name>.+)\.(?P<ver>\d+\.\d+\.\d+)\.json$")
@@ -302,7 +318,7 @@ def main() -> int:
 
         OUT_ROOT.mkdir(parents=True, exist_ok=True)
         (OUT_ROOT / "__init__.py").touch()
-        for pkg in ("abstract", "workproductcomponent", "masterdata"):
+        for pkg in ("abstract", "workproductcomponent", "masterdata", "dataset"):
             src = out_dir / pkg
             if not src.is_dir():
                 continue
@@ -311,7 +327,11 @@ def main() -> int:
                 shutil.rmtree(dst)
             shutil.move(str(src), str(dst))
 
-    n_entities = _count_modules("workproductcomponent") + _count_modules("masterdata")
+    n_entities = (
+        _count_modules("workproductcomponent")
+        + _count_modules("masterdata")
+        + _count_modules("dataset")
+    )
     n_abstracts = _count_modules("abstract")
     print(
         f"Done — {n_entities} entity model(s), "

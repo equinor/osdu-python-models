@@ -5,15 +5,15 @@ Typed **Pydantic v2** models for OSDU `data` payloads — an opt-in companion to
 mirroring the C# [`osdu-csharp-schemas`](https://github.com/equinor/osdu-csharp-schemas)
 library.
 
-> **Status: proof of concept.** Covers **all `work-product-component` and
-> `master-data` entity types** in the pinned OSDU snapshot — **166 entity types
-> across 491 schema versions** (93 work-product-component + 73 master-data), plus
-> **114 shared `abstract` modules** pulled in on demand. The generator is
-> data-driven: the scope is the `SCOPE_GROUPS` list in `tools/generate.py`, and
-> every type and version is discovered from the snapshot automatically, so a
-> snapshot bump or adding a group needs no other code change. `abstract` schemas
-> are not listed explicitly — only those reachable from a selected entity's
-> `$ref` closure are generated.
+> **Status: proof of concept.** Covers **all `work-product-component`,
+> `master-data` and `dataset` entity types** in the pinned OSDU snapshot — **194
+> entity types across 551 schema versions** (93 work-product-component + 73
+> master-data + 28 dataset), plus **128 shared `abstract` modules** pulled in on
+> demand. The generator is data-driven: the scope is the `SCOPE_GROUPS` list in
+> `tools/generate.py`, and every type and version is discovered from the snapshot
+> automatically, so a snapshot bump or adding a group needs no other code change.
+> `abstract` schemas are not listed explicitly — only those reachable from a
+> selected entity's `$ref` closure are generated.
 
 ## Why
 
@@ -77,7 +77,7 @@ them. To build from source instead, see [Build & test](#build--test).
 - **Shared abstract modules.** OSDU `abstract/*` building blocks are generated
   **once** under `osdu_models/abstract/<type>/v<ver>.py`; each entity model
   imports them rather than inlining a private copy. This removes the ~96 % class
-  duplication of a per-entity bundling approach (491 models: ~58,000 → 1,804 class
+  duplication of a per-entity bundling approach (551 models: ~65,000 → 2,071 class
   defs) and is what makes scaling to the full schema set viable. Same idea as
   the C# library's `ExternalReferenceCode` abstract sharing.
 - **String-only constraints stripped off non-string nodes.** A few OSDU schemas
@@ -106,7 +106,8 @@ osdu-python-models/
 ├── src/osdu_models/            # generated Pydantic models (gitignored, regenerable)
 │   ├── abstract/<type>/v<ver>.py          # shared abstract building blocks (generated once)
 │   ├── workproductcomponent/<type>/v<ver>.py
-│   └── masterdata/<type>/v<ver>.py        # → class Data, importing the shared abstracts
+│   ├── masterdata/<type>/v<ver>.py        # → class Data, importing the shared abstracts
+│   └── dataset/<type>/v<ver>.py           # e.g. dataset/file_generic/v1_1_0.py
 ├── tests/test_roundtrip.py    # round-trip + typed-access tests vs real OSDU examples (all versions)
 └── samples/author_welllog.py  # end-to-end authoring demo (no network)
 ```
