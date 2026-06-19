@@ -1,11 +1,11 @@
-# osdu-python-models (PoC)
+# osdu-python-models
 
 Typed **Pydantic v2** models for OSDU `data` payloads — an opt-in companion to
 [`osdu-python-client`](https://community.opengroup.org/osdu/platform/system/sdks/osdu-python-client),
 mirroring the C# [`osdu-csharp-schemas`](https://github.com/equinor/osdu-csharp-schemas)
 library.
 
-> **Status: proof of concept.** Covers **all `work-product-component`,
+> **Scope.** Covers **all `work-product-component`,
 > `master-data` and `dataset` entity types** in the pinned OSDU snapshot — **194
 > entity types across 551 schema versions** (93 work-product-component + 73
 > master-data + 28 dataset), plus **128 shared `abstract` modules** pulled in on
@@ -44,8 +44,8 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
 
 ## Install
 
-Released distributions are published as **GitHub Release assets** (this is a PoC —
-not on PyPI). Install the wheel directly from a release:
+Released distributions are published as **GitHub Release assets** (not yet on
+PyPI). Install the wheel directly from a release:
 
 ```sh
 pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
