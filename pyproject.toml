@@ -5,10 +5,28 @@ description = "Typed Pydantic models for OSDU data payloads — opt-in companion
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [{ name = "Equinor" }]
+keywords = ["osdu", "pydantic", "schemas", "models", "wellbore", "ddms"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
 dependencies = [
     "pydantic>=2.9",
 ]
+
+[project.urls]
+Homepage = "https://github.com/equinor/osdu-python-models"
+Repository = "https://github.com/equinor/osdu-python-models"
+Issues = "https://github.com/equinor/osdu-python-models/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -18,7 +36,7 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]

@@ -44,29 +44,23 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
 
 ## Install
 
-Released distributions are published as **GitHub Release assets** (not yet on
-PyPI). Install the wheel directly from a release:
-
 ```sh
-pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
+pip install osdu-python-models
 ```
 
 or with [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
+uv add osdu-python-models
 ```
 
-To pin it in `requirements.txt` / `pyproject.toml`:
+Models are shipped pre-generated in the published distributions — no codegen step
+needed to consume them. To build from source instead, see
+[Build & test](#build--test).
 
-```
-osdu-python-models @ https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
-```
-
-See the [releases page](https://github.com/equinor/osdu-python-models/releases)
-for the latest version and its `.whl` / `.tar.gz` assets. Models are shipped
-pre-generated in the published distributions — no codegen step needed to consume
-them. To build from source instead, see [Build & test](#build--test).
+> Each tagged version is also attached to its
+> [GitHub Release](https://github.com/equinor/osdu-python-models/releases) as
+> `.whl` / `.tar.gz` assets.
 
 ## Design
 
