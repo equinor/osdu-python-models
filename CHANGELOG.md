@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/equinor/osdu-python-models/compare/v0.4.0...v0.5.0) (2026-06-23)
+
+
+### Features
+
+* publish releases to PyPI via Trusted Publishing ([#7](https://github.com/equinor/osdu-python-models/issues/7)) ([8055495](https://github.com/equinor/osdu-python-models/commit/8055495ce1219e656054017e5a9f24a96ca4b9a9))
+
 ## [0.4.0](https://github.com/equinor/osdu-python-models/compare/v0.3.0...v0.4.0) (2026-06-18)
 
 
