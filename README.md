@@ -44,29 +44,23 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
 
 ## Install
 
-Released distributions are published as **GitHub Release assets** (not yet on
-PyPI). Install the wheel directly from a release:
-
 ```sh
-pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
+pip install osdu-python-models
 ```
 
 or with [uv](https://docs.astral.sh/uv/):
 
 ```sh
-uv pip install https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
+uv add osdu-python-models
 ```
 
-To pin it in `requirements.txt` / `pyproject.toml`:
+Models are shipped pre-generated in the published distributions — no codegen step
+needed to consume them. To build from source instead, see
+[Build & test](https://github.com/equinor/osdu-python-models#build--test).
 
-```
-osdu-python-models @ https://github.com/equinor/osdu-python-models/releases/download/v0.3.0/osdu_python_models-0.3.0-py3-none-any.whl
-```
-
-See the [releases page](https://github.com/equinor/osdu-python-models/releases)
-for the latest version and its `.whl` / `.tar.gz` assets. Models are shipped
-pre-generated in the published distributions — no codegen step needed to consume
-them. To build from source instead, see [Build & test](#build--test).
+> Each tagged version is also attached to its
+> [GitHub Release](https://github.com/equinor/osdu-python-models/releases) as
+> `.whl` / `.tar.gz` assets.
 
 ## Design
 
@@ -146,14 +140,14 @@ hand-edited.
 
 ## Contributing
 
-Contributions are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for
+Contributions are welcome — see [`CONTRIBUTING.md`](https://github.com/equinor/osdu-python-models/blob/main/CONTRIBUTING.md) for
 development setup, the pull-request process, and commit conventions.
 
 ## Security
 
 To report a security vulnerability, follow the process in
-[`SECURITY.md`](SECURITY.md). Do not open a public issue.
+[`SECURITY.md`](https://github.com/equinor/osdu-python-models/blob/main/SECURITY.md). Do not open a public issue.
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE).
+Licensed under the [Apache License 2.0](https://github.com/equinor/osdu-python-models/blob/main/LICENSE).
