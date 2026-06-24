@@ -48,6 +48,8 @@ Reading is the mirror image: `Data.model_validate(record["data"])`.
 pip install osdu-python-models
 ```
 
+Requires **Python 3.10–3.14**.
+
 or with [uv](https://docs.astral.sh/uv/):
 
 ```sh
