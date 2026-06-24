@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/equinor/osdu-python-models/compare/v0.5.0...v0.6.0) (2026-06-24)
+
+
+### Features
+
+* support Python 3.10 through 3.14 ([#10](https://github.com/equinor/osdu-python-models/issues/10)) ([ae14271](https://github.com/equinor/osdu-python-models/commit/ae14271b94d08ff0d122df720cada10dd2574552))
+
 ## [0.5.0](https://github.com/equinor/osdu-python-models/compare/v0.4.0...v0.5.0) (2026-06-23)
 
 
