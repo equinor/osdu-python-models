@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write # Required to update changelog file
       pull-requests: write # Required to create release PRs
-    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@792c28d178029e9d2b5ae027e3acbe18da89e9ed # v9.38.2
+    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@8c9c3b94821100c8101be18193ad8136c24c6167 # v9.38.3
 
   build-and-publish:
     name: Build and publish
@@ -25,7 +25,7 @@ jobs:
       contents: write # Required to upload assets to the GitHub Release
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
