@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write # Required to update changelog file
       pull-requests: write # Required to create release PRs
-    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@792c28d178029e9d2b5ae027e3acbe18da89e9ed # v9.38.2
+    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@e8dfd5776985e7d74c93787841b1a1b830d80175 # v9.39.1
 
   build-and-publish:
     name: Build and publish
@@ -25,12 +25,12 @@ jobs:
       contents: write # Required to upload assets to the GitHub Release
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@d31148d669074a8d0a63714ba94f3201e7020bc3 # v8.3.0
         with:
           python-version: "3.14"
 
