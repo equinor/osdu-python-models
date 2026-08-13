@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/equinor/osdu-python-models/compare/v0.6.0...v0.7.0) (2026-08-13)
+
+
+### Features
+
+* bump pinned OSDU snapshot to M27.0 (DD v0.30.0) ([#15](https://github.com/equinor/osdu-python-models/issues/15)) ([8c97dc2](https://github.com/equinor/osdu-python-models/commit/8c97dc2f121e6c31ddf12c239c2989db4f90b3cb))
+
+
+### Dependencies
+
+* bump the github-actions group across 1 directory with 6 updates ([#14](https://github.com/equinor/osdu-python-models/issues/14)) ([51b2798](https://github.com/equinor/osdu-python-models/commit/51b27980311c3c778c874ee1a8407296fdc4a14c))
+
 ## [0.6.0](https://github.com/equinor/osdu-python-models/compare/v0.5.0...v0.6.0) (2026-06-24)
 
 
