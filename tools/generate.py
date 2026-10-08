@@ -44,7 +44,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SNAPSHOT = REPO / "schemas" / "M27.0"
+SNAPSHOT = REPO / "schemas" / "M27.1"
 OUT_ROOT = REPO / "src" / "osdu_models"
 
 # Entity scope: every entity type in these schema groups is generated (all

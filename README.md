@@ -6,9 +6,9 @@ mirroring the C# [`osdu-csharp-schemas`](https://github.com/equinor/osdu-csharp-
 library.
 
 > **Scope.** Covers **all `work-product-component`,
-> `master-data` and `dataset` entity types** in the pinned OSDU snapshot — **204
-> entity types across 573 schema versions** (97 work-product-component + 79
-> master-data + 28 dataset), plus **131 shared `abstract` modules** pulled in on
+> `master-data` and `dataset` entity types** in the pinned OSDU snapshot — **221
+> entity types across 595 schema versions** (103 work-product-component + 90
+> master-data + 28 dataset), plus **132 shared `abstract` modules** pulled in on
 > demand. The generator is data-driven: the scope is the `SCOPE_GROUPS` list in
 > `tools/generate.py`, and every type and version is discovered from the snapshot
 > automatically, so a snapshot bump or adding a group needs no other code change.
@@ -73,7 +73,7 @@ needed to consume them. To build from source instead, see
 - **Shared abstract modules.** OSDU `abstract/*` building blocks are generated
   **once** under `osdu_models/abstract/<type>/v<ver>.py`; each entity model
   imports them rather than inlining a private copy. This removes the ~96 % class
-  duplication of a per-entity bundling approach (573 models: ~68,000 → 2,128 class
+  duplication of a per-entity bundling approach (595 models: ~68,000 → 2,176 class
   defs) and is what makes scaling to the full schema set viable. Same idea as
   the C# library's `ExternalReferenceCode` abstract sharing.
 - **String-only constraints stripped off non-string nodes.** A few OSDU schemas
@@ -89,8 +89,8 @@ needed to consume them. To build from source instead, see
   variants a strict parser rejects), `email` (`EmailStr`, needs `email-validator`),
   `uri` (`AnyUrl`, normalises the value). Keeping plain `str` preserves the input.
   Same pragmatic choice the C# library makes.
-- **Pinned snapshot.** `schemas/M27.0/` is a frozen copy of the OSDU
-  `data-definitions` `Generated/` schemas (DD `v0.30.0`, the M27 milestone
+- **Pinned snapshot.** `schemas/M27.1/` is a frozen copy of the OSDU
+  `data-definitions` `Generated/` schemas (DD `v0.30.1`, the M27.1 milestone
   publication; shared with the C# library). Bumping it
   is an explicit, reviewable change.
 
@@ -98,7 +98,7 @@ needed to consume them. To build from source instead, see
 
 ```
 osdu-python-models/
-├── schemas/M27.0/             # pinned data-definitions snapshot (abstract + entities)
+├── schemas/M27.1/             # pinned data-definitions snapshot (abstract + entities)
 ├── tools/generate.py          # restructures the `data` sub-schemas, runs datamodel-codegen
 ├── src/osdu_models/            # generated Pydantic models (gitignored, regenerable)
 │   ├── abstract/<type>/v<ver>.py          # shared abstract building blocks (generated once)
