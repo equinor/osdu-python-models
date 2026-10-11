@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write # Required to update changelog file
       pull-requests: write # Required to create release PRs
-    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@4b9451c480b4b8632730c9cbc2f8d13e7a852259 # v9.42.0
+    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@af5bad1a47ab8f8c333f8910f06c1938dd962dac # v9.43.0
 
   build-and-publish:
     name: Build and publish
@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           python-version: "3.14"
 
