@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/equinor/osdu-python-models/compare/v0.8.0...v0.8.1) (2026-11-01)
+
+
+### Dependencies
+
+* bump the github-actions group across 1 directory with 7 updates ([#27](https://github.com/equinor/osdu-python-models/issues/27)) ([a383c01](https://github.com/equinor/osdu-python-models/commit/a383c011341f9c9cf6d822d6dceb62011b42ae39))
+
 ## [0.8.0](https://github.com/equinor/osdu-python-models/compare/v0.7.1...v0.8.0) (2026-10-08)
 
 
