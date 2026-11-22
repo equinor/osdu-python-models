@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write # Required to update changelog file
       pull-requests: write # Required to create release PRs
-    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@dae4f55b517888e44a342a5f7d3dfac40580a127 # v9.44.0
+    uses: equinor/ops-actions/.github/workflows/release-please-manifest.yml@9f888bd4522bcfaf0cce912c78507079dcd0fc27 # v9.44.1
 
   build-and-publish:
     name: Build and publish
